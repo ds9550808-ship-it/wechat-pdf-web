@@ -23,12 +23,16 @@ export async function onRequestGet(context) {
 
   const body = {
     url,
+  const body = {
+    url,
     pdfOptions: {
-      format: "A4",
+      format: "a4",
       printBackground: true,
       margin: { top: "12mm", bottom: "12mm", left: "10mm", right: "10mm" },
+      preferCSSPageSize: true,
     },
-    gotoOptions: { waitUntil: "networkidle" },
+    gotoOptions: { waitUntil: "networkidle2", timeout: 60000 },
+  };
   };
 
   const r = await fetch(endpoint, {
@@ -58,3 +62,4 @@ export async function onRequestGet(context) {
     },
   });
 }
+fix pdfOptions format and waitUntil
