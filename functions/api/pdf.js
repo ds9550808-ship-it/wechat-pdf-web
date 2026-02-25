@@ -4,7 +4,6 @@ export async function onRequestGet(context) {
   const { searchParams } = new URL(request.url);
   const url = searchParams.get("url");
 
-  // 只允许公众号文章链接
   if (!url || !/^https?:\/\/mp\.weixin\.qq\.com\/s/.test(url)) {
     return new Response("Bad Request: url must be a WeChat mp article link", { status: 400 });
   }
@@ -20,10 +19,7 @@ export async function onRequestGet(context) {
 
   const endpoint = `https://api.cloudflare.com/client/v4/accounts/${accountId}/browser-rendering/pdf`;
 
-  // ✅ 方案A：只做参数层面的增强（更长等待、更长超时）
-  // - format 必须是小写 a4
-  // - waitUntil 用 networkidle2
-  // - timeout 拉长，给懒加载图片更多时间
+  // ✅ 注意：Cloudflare 限制 gotoOptions.timeout <= 60000
   const body = {
     url,
     pdfOptions: {
@@ -31,12 +27,11 @@ export async function onRequestGet(context) {
       printBackground: true,
       preferCSSPageSize: true,
       margin: { top: "12mm", bottom: "12mm", left: "10mm", right: "10mm" },
-      // 可选：清晰度/缩放（你也可以调到 1.1~1.2 试试）
       scale: 1.0,
     },
     gotoOptions: {
       waitUntil: "networkidle2",
-      timeout: 180000, // 180秒，给轮播/懒加载更充足时间
+      timeout: 60000, // <= 60000ms
     },
   };
 
